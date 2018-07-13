@@ -1,5 +1,5 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-
+# interface between html and python
 import cgi
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -26,42 +26,60 @@ class webServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
+            # page listing restaurant names
             if self.path.endswith("/restaurants"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 restaurants = session.query(Restaurant).all()
                 output = "<html><body>"
+                output += "<a href='/restaurants/new'> Make a New Restaurant Here</a><br>"
                 for restaurant in restaurants:
                     output += "<p> " + restaurant.name + "</p>"
+                    output += "<a href='#'>Edit</a><br>"
+                    output += "<a href='#'>Delete</a>"
+                    output += "<br>"
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
                 return
+            
+            # page allowing user to add restaurant via form
+            if self.path.endswith("/restaurants/new"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                form = "<html><body><form action='/restaurants/new' method='POST' enctype='multipart/form-data'>"
+                form += "<input type='text' name='newRestaurantName' placeholder='New Restaurant Name'>"
+                form += "<input type='submit' value='Create'>"
+                form += "</form></body></html>"
+                self.wfile.write(form)
+                print(form)
 
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
-##
-##    def do_POST(self):
-##        try:
-##            self.send_response(301)
-##            self.send_header('Content-type', 'text/html')
-##            self.end_headers()
-##            ctype, pdict = cgi.parse_header(
-##                self.headers.getheader('content-type'))
-##            if ctype == 'multipart/form-data':
-##                fields = cgi.parse_multipart(self.rfile, pdict)
-##                messagecontent = fields.get('message')
-##            output = ""
-##            output += "<html><body>"
-##            output += " <h2> Okay, how about this: </h2>"
-##            output += "<h1> %s </h1>" % messagecontent[0]
-##            output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
-##            output += "</body></html>"
-##            self.wfile.write(output)
-##            print output
-##        except:
-##            pass
+
+
+    def do_POST(self):
+        try:
+            # adds new restaurant named in the form in the database, and returns to restaurant page
+            if self.path.endswith('/restaurants/new'):
+                ctype, pdict = cgi.parse_header(
+                self.headers.getheader('content-type'))
+                if ctype == 'multipart/form-data':
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    messagecontent = fields.get('newRestaurantName')
+
+                userRestaurant = Restaurant(name = messagecontent[0])
+                session.add(userRestaurant)
+                session.commit()
+                
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.send_header('Location', '/restaurants')
+                self.end_headers()
+        except:
+            pass
 
 
 def main():
