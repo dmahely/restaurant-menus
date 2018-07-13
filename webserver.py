@@ -37,7 +37,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 for restaurant in restaurants:
                     output += "<p> " + restaurant.name + "</p>"
                     output += "<a href='/restaurants/" + str(restaurant.id) + "/edit'>Edit</a><br>"
-                    output += "<a href='#'>Delete</a>"
+                    output += "<a href='/restaurants/" + str(restaurant.id) + "/delete'>Delete</a>"
                     output += "<br>"
                 output += "</body></html>"
                 self.wfile.write(output)
@@ -62,12 +62,26 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 restaurant = session.query(Restaurant).filter_by(id = self.path[-6]).one()
-                form = "<html><body><h1>" + restaurant.name + "</h1><form action='/restaurants" + str(restaurant.id) + "/edit' method='POST' enctype='multipart/form-data'>"
+                form = "<html><body><h1>" + restaurant.name + "</h1><form action='/restaurants/" + str(restaurant.id) + "/edit' method='POST' enctype='multipart/form-data'>"
                 form += "<input type='text' name='updatedRestaurantName' placeholder=' " + restaurant.name + "'>"
                 form += "<input type='submit' value='Update'>"
                 form += "</form></body></html>"
                 self.wfile.write(form)
                 print(form)
+
+            # page allowing user to delete restaurant from db
+            if self.path.endswith("/delete"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                restaurant = session.query(Restaurant).filter_by(id = self.path[-8]).one()
+                form = "<html><body><h1>Are you sure you want to delete " + restaurant.name + "?</h1>"
+                form += "<form action='/restaurants/" + str(restaurant.id) + "/delete' method='POST' enctype='multipart/form-data'>"
+                form += "<input type='submit' value='Delete'>"
+                form += "</form></body></html>"
+                self.wfile.write(form)
+                print(form)
+            
                 
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
@@ -102,6 +116,18 @@ class webServerHandler(BaseHTTPRequestHandler):
                 updatedRestaurant = session.query(Restaurant).filter_by(id = self.path[-6]).one()
                 updatedRestaurant.name = messagecontent[0]
                 session.add(updatedRestaurant)
+                session.commit()
+
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.send_header('Location', '/restaurants')
+                self.end_headers()
+
+
+            # deletes restaurant from database, and returns to restaurant page
+            if self.path.endswith('/delete'):
+                deletedRestaurant = session.query(Restaurant).filter_by(id = self.path[-8]).one()
+                session.delete(deletedRestaurant)
                 session.commit()
 
                 self.send_response(301)
