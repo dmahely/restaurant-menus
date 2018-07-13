@@ -36,7 +36,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += "<a href='/restaurants/new'> Make a New Restaurant Here</a><br>"
                 for restaurant in restaurants:
                     output += "<p> " + restaurant.name + "</p>"
-                    output += "<a href='#'>Edit</a><br>"
+                    output += "<a href='/restaurants/" + str(restaurant.id) + "/edit'>Edit</a><br>"
                     output += "<a href='#'>Delete</a>"
                     output += "<br>"
                 output += "</body></html>"
@@ -56,6 +56,19 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(form)
                 print(form)
 
+            # page allowing user to edit existing restaurant name
+            if self.path.endswith("/edit"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                restaurant = session.query(Restaurant).filter_by(id = self.path[-6]).one()
+                form = "<html><body><h1>" + restaurant.name + "</h1><form action='/restaurants" + str(restaurant.id) + "/edit' method='POST' enctype='multipart/form-data'>"
+                form += "<input type='text' name='updatedRestaurantName' placeholder=' " + restaurant.name + "'>"
+                form += "<input type='submit' value='Update'>"
+                form += "</form></body></html>"
+                self.wfile.write(form)
+                print(form)
+                
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
 
@@ -78,6 +91,24 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/html')
                 self.send_header('Location', '/restaurants')
                 self.end_headers()
+
+            # updates existing restaurant name in the database, and returns to restaurant page
+            if self.path.endswith('/edit'):
+                ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+                if ctype == 'multipart/form-data':
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    messagecontent = fields.get('updatedRestaurantName')
+                    
+                updatedRestaurant = session.query(Restaurant).filter_by(id = self.path[-6]).one()
+                updatedRestaurant.name = messagecontent[0]
+                session.add(updatedRestaurant)
+                session.commit()
+
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.send_header('Location', '/restaurants')
+                self.end_headers()
+                
         except:
             pass
 
