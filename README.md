@@ -15,8 +15,10 @@ You must have Python installed on your machine. Check your Python version by run
 7. Run `vagrant ssh`.
 8. Run `cd /vagrant`. This will take you to the shared folder between your VM and host machine.
 9. Download my repository (dmahely/restaurant-menus) and place the files in `fullstack/vagrant/`.
-10. Run `python webserver.py`.
-11. Go to [http://localhost:9999/restaurants](http://localhost:9999/restaurants) in your browser.
+10. Run `python database_setup`. This command will create a file named `restaurantmenu.db` in the same directory.
+11. Run `python lotsofmenus.py`. This command will populate the database.
+12. Run `python webserver.py`. This command will get the server up and running.
+13. Go to [http://localhost:8080/restaurants](http://localhost:8080/restaurants) in your browser.
 
 # After Running the Program
 You should see a plain HTML page that has the names of restaurants. You can edit, delete, and add restaurants.
