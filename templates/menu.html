@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{restaurant.name}} Menu</title>
+</head>
+<body>
+	<h1>{{restaurant.name}} Menu</h1>
+	{%for i in items%}
+	<p>{{i.name}}</p>
+	<p>{{i.description}}</p>
+	<p>{{i.price}}</p>
+	<hr>
+	{%endfor%}
+	<a href='/restaurants/'>Back to Main Page</a>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Restaurants</title>
+</head>
+<body>
+	<h1>List of Restaurants</h1>
+	<a href='/restaurant/new/'>Add a New Restaurant Here</a>
+	{%for r in restaurants%}
+	<p>{{r.name}}</p>
+	<a href='/restaurant/{{r.id}}/edit/'>Edit</a>
+	<a href='/restaurant/{{r.id}}/delete/'>Delete</a>
+	{%endfor%}
+
+</body>
+</html>

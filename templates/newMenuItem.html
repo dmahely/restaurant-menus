@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>New Menu Item in {{restaurant.name}}</title>
+</head>
+<body>
+	<h1>Add a New Menu Item in {{restaurant.name}} </h1>
+	<form action='#'>
+		<input type='text' name='name' placeholder='New menu item name'>
+		<br>
+		<input type='text' name='price' placeholder='Price in USD'>
+		<br>
+		<textarea type='text' name='description' placeholder='New menu item description'></textarea>
+		<br>
+		<input type='submit' value='Add'>
+		<a href='/restaurant/{{restaurant.id}}/'>Cancel</a>
+	</form>
+
+</body>
+</html>
