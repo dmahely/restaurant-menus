@@ -6,11 +6,8 @@
 <body>
 	<h1>List of Restaurants</h1>
 	<a href='/restaurant/new/'>Add a New Restaurant Here</a>
-	{%for r in restaurants%}
-	<p>{{r.name}}</p>
-	<a href='/restaurant/{{r.id}}/edit/'>Edit</a>
-	<a href='/restaurant/{{r.id}}/delete/'>Delete</a>
-	{%endfor%}
+	<br>
+	<a href="{{url_for('edit_restaurant', restuarant_id=1 )}}"> test</a>
 
 </body>
 </html>
