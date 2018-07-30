@@ -5,11 +5,10 @@
 </head>
 <body>
 	<h1>Edit a Restaurant</h1>
-	<form action='#'>
-		<input type='text' name='name' placeholder='{{restaurant.name}}'>
-		<input type='submit' value='Submit'>
-		<a href='/restaurants/'>Cancel</a>
+	<form action="{{url_for('edit_restaurant', restaurant_id = restaurant.id)}}" method='post'>
+	<input type='text' name='name' placeholder='{{restaurant.name}}'>
+	<input type='submit' value='Submit'>
+	<a href='/restaurants/'>Cancel</a>
 	</form>
-
 </body>
 </html>
