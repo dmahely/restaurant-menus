@@ -4,11 +4,13 @@
 	<title>Delete a Menu Item</title>
 </head>
 <body>
-	<h1>Delete {{item.name}}?</h1>
-	<form action='#'>
+	<h1>Delete {{menu_item.name}}?</h1>
+	<form action='{{url_for('delete_menu_item', restaurant_id=restaurant.id, menu_item_id=menu_item.id)}}' method='post'>
 		<input type='submit' value='Delete'>
 		<a href='/restaurant/{{restaurant.id}}/menu/'>Cancel</a>
 	</form>
 
 </body>
 </html>
+
+Portebello mushrooms in a cremy risotto
