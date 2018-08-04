@@ -1,9 +1,10 @@
-from flask import Flask, render_template, url_for, redirect, request, jsonify
+from flask import Flask, render_template, url_for, redirect, request, jsonify, flash
 from database_setup import Base, Restaurant, MenuItem
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 app = Flask(__name__)
+app.secret_key = 'SECRET_KEY'
 
 engine = create_engine('sqlite:///restaurantmenu.db?check_same_thread=False')
 Base.metadata.bind = engine
@@ -40,6 +41,7 @@ def new_restaurant():
         new_entry = Restaurant(name=request.form.get('name'))
         session.add(new_entry)
         session.commit()
+        flash('New restaurant sucessfully added!')
         return redirect(url_for('show_restaurants'))
     if request.method == 'GET':
         return render_template('newRestaurant.html')
@@ -52,6 +54,7 @@ def edit_restaurant(restaurant_id):
         restaurant.name = request.form.get('name')
         session.add(restaurant)
         session.commit()
+        flash('Restaurant\'s information sucessfully edited!')
         return redirect(url_for('show_restaurants'))
     if request.method == 'GET':
         return render_template('editRestaurant.html', restaurant = restaurant)
@@ -63,6 +66,7 @@ def delete_restaurant(restaurant_id):
     if request.method == 'POST':
         session.delete(restaurant)
         session.commit()
+        flash('Restaurant successfully deleted!')
         return redirect(url_for('show_restaurants'))
     if request.method == 'GET':
         return render_template('deleteRestaurant.html', restaurant = restaurant)
@@ -85,6 +89,7 @@ def new_menu_item(restaurant_id):
                              description = request.form.get('description'))
         session.add(menu_item)
         session.commit()
+        flash('New menu item successfully added!')
         return redirect(url_for('show_menu', restaurant_id = restaurant_id))
     if request.method == 'GET':
         return render_template('newMenuItem.html', restaurant = restaurant)
@@ -102,6 +107,7 @@ def edit_menu_item(restaurant_id, menu_item_id):
         menu_item.description = request.form.get('description')
         session.add(menu_item)
         session.commit()
+        flash('Menu item\'s information successfully edited!')
         return redirect(url_for('show_menu', restaurant_id = restaurant_id))
     if request.method == 'GET':
         return render_template('editMenuItem.html', restaurant = restaurant, menu_item = menu_item)
@@ -115,6 +121,7 @@ def delete_menu_item(restaurant_id, menu_item_id):
     if request.method == 'POST':
         session.delete(menu_item)
         session.commit()
+        flash('Menu item successfully deleted!')
         return redirect(url_for('show_menu', restaurant_id = restaurant_id))
     if request.method == 'GET':
         return render_template('deleteMenuItem.html', restaurant = restaurant, menu_item = menu_item)
