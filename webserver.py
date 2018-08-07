@@ -1,7 +1,12 @@
+# Client id: 413629628721-4g3mhr1iko0jv5nmg1tsiqgcqn24g1nt.apps.googleusercontent.com
+# Client secret: caYnfx6fj2U3zQnaxuACLJUS
 from flask import Flask, render_template, url_for, redirect, request, jsonify, flash
 from database_setup import Base, Restaurant, MenuItem
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+# imports for OAuth
+from flask import session as login_session
+import random, string
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -26,6 +31,18 @@ def menu_item_json(restaurant_id, menu_item_id):
     menu_item = session.query(MenuItem).filter_by(restaurant_id = restaurant_id,
                                                   id = menu_item_id).one()
     return jsonify(MenuItem = menu_item.serialize)
+
+# login page
+# will create a state token to prevent request forgery
+# to be stored in the session for later validation
+@app.route('/login/')
+def show_login():
+    # generates random anti-forgery state token and
+    # saves it in Flask's session object
+    state = ''.join(random.choice(
+        string.ascii_uppercase + string.digits) for x in xrange(32))
+    login_session['state'] = state
+    return render_template('login.html')
 
 # list of restaurants
 @app.route('/')
