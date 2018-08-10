@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, redirect, request, jsonify, flash
-from database_setup import Base, Restaurant, MenuItem
+from database_setup import Base, Restaurant, MenuItem, User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -114,6 +114,13 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # if user doesn't exist, make a new user
+    user_id = get_user_id(login_session['email'])
+    if not user_id:
+    	user_id = create_user(login_session)
+    login_session['user_id'] = user_id
+
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -193,13 +200,17 @@ def menu_item_json(restaurant_id, menu_item_id):
 @app.route('/restaurants/')
 def show_restaurants():
     restaurants = session.query(Restaurant).all()
+    if 'username' not in login_session:
+    	return render_template('publicrestaurants.html',
+    		restaurants = restaurants)
     return render_template('restaurants.html', restaurants = restaurants)
 
 # adding new restaurant
 @app.route('/restaurant/new/', methods = ['GET', 'POST'])
 def new_restaurant():
     if request.method == 'POST':
-        new_entry = Restaurant(name=request.form.get('name'))
+        new_entry = Restaurant(name=request.form.get('name'),
+        	user_id = login_session['user_id'])
         session.add(new_entry)
         session.commit()
         flash('New restaurant sucessfully added!')
@@ -237,7 +248,11 @@ def delete_restaurant(restaurant_id):
 @app.route('/restaurant/<int:restaurant_id>/')
 def show_menu(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+    creator = get_user_info(restaurant.user_id)
     items = session.query(MenuItem).filter_by(restaurant_id = restaurant.id).all()
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+    	return render_template('publicmenu.html', items = items,
+    		restaurant = restaurant, creator = creator)
     return render_template('menu.html', restaurant = restaurant, items = items)
 
 # adding a menu item to an existing restaurant
@@ -247,7 +262,8 @@ def new_menu_item(restaurant_id):
     if request.method == 'POST':
         menu_item = MenuItem(name = request.form.get('name'),
                              price = request.form.get('price'),
-                             description = request.form.get('description'))
+                             description = request.form.get('description'),
+        					 user_id = login_session['user_id'])
         session.add(menu_item)
         session.commit()
         flash('New menu item successfully added!')
@@ -286,6 +302,32 @@ def delete_menu_item(restaurant_id, menu_item_id):
         return redirect(url_for('show_menu', restaurant_id = restaurant_id))
     if request.method == 'GET':
         return render_template('deleteMenuItem.html', restaurant = restaurant, menu_item = menu_item)
+
+# creates new user in db
+def create_user():
+	new_user = User(name = login_session['username'],
+		email = login_session['email'],
+		picture = login_session['picture'])
+	session.add(new_user)
+	session.commit()
+	user = session.query(User).filter_by(
+		email = login_session['email']).one()
+	return user.id
+
+# gets user object
+def get_user_info(user_id):
+	user = session.query(User).filter_by(
+		id = user_id).one()
+	return user
+
+# gets user id
+def get_user_id(email):
+	try:
+		user = session.query(User).filter_by(
+			email = email).one()
+		return user.id
+	except:
+		return None
 
 # will only run from python interpretor
 if __name__ == '__main__':
