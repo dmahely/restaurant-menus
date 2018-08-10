@@ -5,12 +5,9 @@
   <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
   </script>
-
-<script src="//apis.google.com/js/platform.js?onload=start"> </script>
+  <script src="//apis.google.com/js/platform.js?onload=start"></script>
 
 <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
-
-
 </head>
 
 
@@ -52,7 +49,7 @@ function signInCallback(authResult) {
           $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
          setTimeout(function() {
           window.location.href = "/";
-         }, 4000);
+         }, 3000);
 
       } else if (authResult['error']) {
     console.log('There was an error: ' + authResult['error']);
