@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>{{restaurant.name}} Menu</title>
+	<title>{{restaurant.name}}'s Menu</title>
 </head>
 <body>
 	<h1>{{restaurant.name}} Menu</h1>
+
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul>
+		{% for message in messages %}
+		<li>{{ message }}</li>
+		{%endfor%}
+	</ul>
+	{%endif%}
+	{%endwith%}
+
 	{%for i in items%}
 	<p>{{i.id}}  - {{i.name}}</p>
 	<p>{{i.description}}</p>

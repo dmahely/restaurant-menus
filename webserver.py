@@ -23,6 +23,11 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# Login page
+@app.route('/restaurants/login/')
+def show_login():
+    return render_template('login.html')
+
 # API endpoint for a restaurant's menu
 @app.route('/restaurants/<int:restaurant_id>/json/')
 @app.route('/restaurants/<int:restaurant_id>/menu/json/')
@@ -46,8 +51,8 @@ def menu_item_json(restaurant_id, menu_item_id):
 def show_restaurants():
     restaurants = session.query(Restaurant).all()
     if 'username' not in login_session:
-        return render_template('publicrestaurants.html',
-            restaurants = restaurants)
+    	return render_template('publicrestaurants.html',
+    		restaurants = restaurants)
     return render_template('restaurants.html', restaurants = restaurants)
 
 # adding new restaurant
@@ -55,7 +60,7 @@ def show_restaurants():
 def new_restaurant():
     if request.method == 'POST':
         new_entry = Restaurant(name=request.form.get('name'),
-            user_id = login_session['user_id'])
+        	user_id = login_session['user_id'])
         session.add(new_entry)
         session.commit()
         flash('New restaurant sucessfully added!')
@@ -96,8 +101,8 @@ def show_menu(restaurant_id):
     creator = get_user_info(restaurant.user_id)
     items = session.query(MenuItem).filter_by(restaurant_id = restaurant.id).all()
     if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicmenu.html', items = items,
-            restaurant = restaurant, creator = creator)
+    	return render_template('publicmenu.html', items = items,
+    		restaurant = restaurant, creator = creator)
     return render_template('menu.html', restaurant = restaurant, items = items)
 
 # adding a menu item to an existing restaurant
@@ -108,7 +113,7 @@ def new_menu_item(restaurant_id):
         menu_item = MenuItem(name = request.form.get('name'),
                              price = request.form.get('price'),
                              description = request.form.get('description'),
-                             user_id = login_session['user_id'])
+        					 user_id = login_session['user_id'])
         session.add(menu_item)
         session.commit()
         flash('New menu item successfully added!')
